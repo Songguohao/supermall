@@ -5,6 +5,7 @@
       <div slot="center">购物车</div>
     </nav-bar>
     <home-swiper :banners="banners"></home-swiper>
+    <recommend-view :recommends="recommends"></recommend-view>
   </div>
 </template>
 
@@ -12,9 +13,10 @@
 import NavBar from "../../components/common/navbar/NavBar.vue";
 import { getHomeMultidata } from "network/home";
 import HomeSwiper from "./childComps/HomeSwiper.vue";
+import RecommendView from './childComps/RecommendView.vue';
 
 export default {
-  components: { NavBar, HomeSwiper },
+  components: { NavBar, HomeSwiper, RecommendView },
   name: "Home",
   data() {
     return {
