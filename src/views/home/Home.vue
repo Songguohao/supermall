@@ -6,6 +6,7 @@
     </nav-bar>
     <home-swiper :banners="banners"></home-swiper>
     <recommend-view :recommends="recommends"></recommend-view>
+    <feature-view></feature-view>
   </div>
 </template>
 
@@ -14,9 +15,10 @@ import NavBar from "../../components/common/navbar/NavBar.vue";
 import { getHomeMultidata } from "network/home";
 import HomeSwiper from "./childComps/HomeSwiper.vue";
 import RecommendView from './childComps/RecommendView.vue';
+import FeatureView from './childComps/FeatureView.vue';
 
 export default {
-  components: { NavBar, HomeSwiper, RecommendView },
+  components: { NavBar, HomeSwiper, RecommendView, FeatureView },
   name: "Home",
   data() {
     return {
@@ -43,8 +45,17 @@ export default {
 <style scoped>
 /* @import url(); 引入css类 */
 @import "../../assets/css/basecss.css";
+#home {
+  padding-top: 44px;
+}
 .home-nav {
   background-color: var(--color-tint);
   color: #fff;
+
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 9;
 }
 </style>
