@@ -10,55 +10,9 @@
     <tab-control
       class="tab-control"
       :titles="['流行', '新款', '精选']"
+      @tabClick="tabClick"
     ></tab-control>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
-    <div>列表1</div>
+    <goods-list :goods="showGoods"></goods-list>
   </div>
 </template>
 
@@ -69,29 +23,60 @@ import HomeSwiper from "./childComps/HomeSwiper.vue";
 import RecommendView from "./childComps/RecommendView.vue";
 import FeatureView from "./childComps/FeatureView.vue";
 import TabControl from "../../components/content/tabControl/TabControl.vue";
+import GoodsList from "../../components/content/goods/GoodsList.vue";
 
 export default {
-  components: { NavBar, HomeSwiper, RecommendView, FeatureView, TabControl },
+  components: {
+    NavBar,
+    HomeSwiper,
+    RecommendView,
+    FeatureView,
+    TabControl,
+    GoodsList,
+  },
   name: "Home",
   data() {
     return {
       banners: [],
       recommends: [],
       goods: {
-        'pop': { page: 0, list: [] },
-        'news': { page: 0, list: [] },
-        'sell': { page: 0, list: [] },
+        pop: { page: 0, list: [] },
+        new: { page: 0, list: [] },
+        sell: { page: 0, list: [] },
       },
+      currentType: "pop",
     };
   },
   //生命周期 - 创建完成（访问当前this实例）
   created() {
     this.getHomeData();
-    this.getHomeGoodsData('pop',1);
+    this.getHomeGoodsData("new");
+    this.getHomeGoodsData("pop");
+    this.getHomeGoodsData("sell");
   },
   //生命周期 - 挂载完成（访问DOM元素）
   mounted() {},
+  computed: {
+    showGoods() {
+      return this.goods[this.currentType].list;
+    },
+  },
   methods: {
+    //事件监听
+    tabClick(index) {
+      switch (index) {
+        case 0:
+          this.currentType = "pop";
+          break;
+        case 1:
+          this.currentType = "new";
+          break;
+        case 2:
+          this.currentType = "sell";
+          break;
+      }
+    },
+
     getHomeData() {
       getHomeMultidata().then((res) => {
         this.banners = res.data.data.banner.list;
@@ -100,11 +85,14 @@ export default {
     },
 
     //获取商品数据
-    getHomeGoodsData(type,page){
-      getHomeGoods(type,page).then(res => {
-        console.log(res)
-      })
-    }
+    getHomeGoodsData(type) {
+      const page = this.goods[type].page + 1;
+      getHomeGoods(type, page).then((res) => {
+        //将list所有数据加进列表中
+        this.goods[type].list.push(...res.data.data.list);
+        this.goods[type].page += 1;
+      });
+    },
   },
 };
 </script>
@@ -128,5 +116,6 @@ export default {
 .tab-control {
   position: sticky;
   top: 44px;
+  z-index: 9;
 }
 </style>

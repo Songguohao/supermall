@@ -32,6 +32,7 @@ export default {
   methods: {
     itemClick(index) {
       this.currentIndex = index;
+      this.$emit("tabClick", index);
     },
   },
   //生命周期 - 创建完成（访问当前this实例）
