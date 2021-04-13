@@ -4,7 +4,14 @@
     <nav-bar class="home-nav">
       <div slot="center">购物街</div>
     </nav-bar>
-    <scroll class="content" ref="scroll">
+    <scroll
+      class="content"
+      ref="scroll"
+      :probe-type="3"
+      :pullUpLoad="true"
+      @scroll="contentScroll"
+      @pullingUp="loadMore"
+    >
       <home-swiper :banners="banners"></home-swiper>
       <recommend-view :recommends="recommends"></recommend-view>
       <feature-view></feature-view>
@@ -15,7 +22,7 @@
       ></tab-control>
       <goods-list :goods="showGoods"></goods-list>
     </scroll>
-    <back-top @click.native="backClick"></back-top>
+    <back-top @click.native="backClick" v-show="isShowBackTop"></back-top>
   </div>
 </template>
 
@@ -52,6 +59,7 @@ export default {
         sell: { page: 0, list: [] },
       },
       currentType: "pop",
+      isShowBackTop: "false",
     };
   },
   //生命周期 - 创建完成（访问当前this实例）
@@ -84,6 +92,10 @@ export default {
       }
     },
 
+    contentScroll(position) {
+      this.isShowBackTop = -position.y > 1000;
+    },
+
     getHomeData() {
       getHomeMultidata().then((res) => {
         this.banners = res.data.data.banner.list;
@@ -98,10 +110,17 @@ export default {
         //将list所有数据加进列表中
         this.goods[type].list.push(...res.data.data.list);
         this.goods[type].page += 1;
+
+        this.$refs.scroll.finishPullUp();
       });
     },
     backClick() {
       this.$refs.scroll.scrollTo(0, 0, 500);
+    },
+
+    loadMore() {
+      this.getHomeGoodsData(this.currentType);
+      this.$refs.scroll.scroll.refresh();
     },
   },
 };
