@@ -1,7 +1,7 @@
 <!-- GoodsItem -->
 <template>
   <div class="goods-item">
-    <img :src="goodsItem.show.img" alt="" />
+    <img :src="goodsItem.show.img" alt="" @load="imageLoad" />
     <div class="goods-info">
       <p>{{ goodsItem.title }}</p>
       <span class="price">{{ goodsItem.price }}</span>
@@ -28,6 +28,11 @@ export default {
   created() {},
   //生命周期 - 挂载完成（访问DOM元素）
   mounted() {},
+  methods: {
+    imageLoad() {
+      this.$bus.$emit("itemImageLoad");
+    },
+  },
 };
 </script>
 <style scoped>

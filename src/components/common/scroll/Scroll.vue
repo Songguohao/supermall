@@ -45,16 +45,18 @@ export default {
     this.scroll.on("pullingUp", () => {
       // 上拉加载更多
       // console.log("上拉加载更多");
-      this.$emit("pullingUp");
     });
   },
   methods: {
     scrollTo(x, y, time = 300) {
-      this.scroll.scrollTo(x, y, time);
+      this.scroll && this.scroll.scrollTo(x, y, time);
     },
     finishPullUp() {
-      this.scroll.finishPullUp();
+      this.scroll && this.scroll.finishPullUp();
     },
+    refresh() {
+      this.scroll && this.scroll.refresh();
+    }
   },
 };
 </script>
