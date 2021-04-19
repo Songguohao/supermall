@@ -4,20 +4,31 @@
     <nav-bar class="home-nav">
       <div slot="center">购物街</div>
     </nav-bar>
+    <tab-control
+      :titles="['流行', '新款', '精选']"
+      @tabClick="tabClick"
+      ref="tabControl1"
+      v-show="isTabFixed"
+    ></tab-control>
     <scroll
       class="content"
       ref="scroll"
       :probe-type="3"
       :pullUpLoad="true"
       @scroll="contentScroll"
+      @pullingUp="loadMore"
     >
-      <home-swiper :banners="banners"></home-swiper>
+      <home-swiper
+        :banners="banners"
+        @swiperImageLoad="swiperImageLoad"
+      ></home-swiper>
       <recommend-view :recommends="recommends"></recommend-view>
       <feature-view></feature-view>
       <tab-control
-        class="tab-control"
         :titles="['流行', '新款', '精选']"
         @tabClick="tabClick"
+        ref="tabControl2"
+        :class="{ fixed: isTabFixed }"
       ></tab-control>
       <goods-list :goods="showGoods"></goods-list>
     </scroll>
@@ -27,7 +38,6 @@
 
 <script>
 import NavBar from "../../components/common/navbar/NavBar.vue";
-import { getHomeMultidata, getHomeGoods } from "network/home";
 import HomeSwiper from "./childComps/HomeSwiper.vue";
 import RecommendView from "./childComps/RecommendView.vue";
 import FeatureView from "./childComps/FeatureView.vue";
@@ -35,6 +45,9 @@ import TabControl from "../../components/content/tabControl/TabControl.vue";
 import GoodsList from "../../components/content/goods/GoodsList.vue";
 import Scroll from "../../components/common/scroll/Scroll.vue";
 import BackTop from "../../components/content/backTop/BackTop.vue";
+
+import { getHomeMultidata, getHomeGoods } from "network/home";
+import { debounce } from "../../components/common/utils";
 
 export default {
   components: {
@@ -59,6 +72,8 @@ export default {
       },
       currentType: "pop",
       isShowBackTop: "false",
+      tabOffsetTop: 0,
+      isTabFixed: false,
     };
   },
   //生命周期 - 创建完成（访问当前this实例）
@@ -70,11 +85,13 @@ export default {
   },
   //生命周期 - 挂载完成（访问DOM元素）
   mounted() {
-    const refresh = this.debounce(this.$refs.scroll.refresh);
+    const refresh = debounce(this.$refs.scroll.refresh);
     //监听item中图片加载完成
     this.$bus.$on("itemImageLoad", () => {
       refresh();
     });
+
+    this.tabOffsetTop = this.$refs.tabControl;
   },
   computed: {
     showGoods() {
@@ -82,17 +99,6 @@ export default {
     },
   },
   methods: {
-    //防抖
-    debounce(func, delay) {
-      let timer = null;
-      return function(...args) {
-        if (timer) clearTimeout(timer);
-        timer = setTimeout(() => {
-          func.apply(this, args);
-        }, delay);
-      };
-    },
-
     //事件监听
     tabClick(index) {
       switch (index) {
@@ -106,10 +112,15 @@ export default {
           this.currentType = "sell";
           break;
       }
+      this.$refs.tabControl1.currentIndex = index;
+      this.$refs.tabControl2.currentIndex = index;
     },
 
     contentScroll(position) {
+      // 1.判断BackTop是否显示
       this.isShowBackTop = -position.y > 1000;
+      // 2.决定tabControl是否吸顶(position: fixed)
+      this.isTabFixed = -position.y > this.tabOffsetTop;
     },
 
     getHomeData() {
@@ -126,10 +137,21 @@ export default {
         //将list所有数据加进列表中
         this.goods[type].list.push(...res.data.data.list);
         this.goods[type].page += 1;
+
+        //完成下拉加载更多
+        this.$refs.scroll.finishPullUp();
       });
     },
     backClick() {
       this.$refs.scroll.scrollTo(0, 0, 500);
+    },
+
+    loadMore() {
+      this.getHomeGoodsData(this.currentType);
+    },
+
+    swiperImageLoad() {
+      this.tabOffsetTop = this.$refs.tabControl2.$el.offsetTop;
     },
   },
 };
@@ -152,12 +174,6 @@ export default {
   z-index: 9;
 }
 
-.tab-control {
-  position: sticky;
-  top: 44px;
-  z-index: 9;
-}
-
 .content {
   /* height: calc(100% - 93px); */
   overflow: hidden;
@@ -166,5 +182,17 @@ export default {
   bottom: 49px;
   left: 0;
   right: 0;
+}
+
+.tab-control {
+  position: relative;
+  z-index: 9;
+}
+
+.fixed {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 44px;
 }
 </style>

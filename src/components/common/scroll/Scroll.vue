@@ -45,6 +45,7 @@ export default {
     this.scroll.on("pullingUp", () => {
       // 上拉加载更多
       // console.log("上拉加载更多");
+      this.$emit("pullingUp");
     });
   },
   methods: {
