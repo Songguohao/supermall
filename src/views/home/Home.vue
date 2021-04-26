@@ -74,6 +74,7 @@ export default {
       isShowBackTop: "false",
       tabOffsetTop: 0,
       isTabFixed: false,
+      saveY: 0,
     };
   },
   //生命周期 - 创建完成（访问当前this实例）
@@ -153,6 +154,13 @@ export default {
     swiperImageLoad() {
       this.tabOffsetTop = this.$refs.tabControl2.$el.offsetTop;
     },
+  },
+  activated() {
+    this.$refs.scroll.scrollTo(0, this.saveY, 0);
+    this.$refs.scroll.refresh()
+  },
+  deactivated() {
+    this.saveY = this.$refs.scroll.scroll.y;
   },
 };
 </script>
